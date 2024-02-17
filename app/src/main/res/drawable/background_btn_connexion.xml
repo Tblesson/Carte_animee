@@ -1,0 +1,10 @@
+<!-- btn_background.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:startColor="#4285F4"
+        android:endColor="#34A8F2"
+        android:type="linear"
+        android:angle="135"/>
+    <corners android:radius="8dp"/>
+</shape>
