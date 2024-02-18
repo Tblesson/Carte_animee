@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import android.window.OnBackInvokedDispatcher
 import androidx.activity.addCallback
@@ -19,10 +20,20 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 
-
 class PageAccueil : AppCompatActivity() {
 
-    val items = arrayOf("Animaux", "Véhicules", "Bâtiments", "Nourriture", "Paysages", "Fruits", "Personnes", "Plantes", "Sports", "Technologie")
+    val items = arrayOf(
+        "Animaux",
+        "Véhicules",
+        "Bâtiments",
+        "Nourriture",
+        "Paysages",
+        "Fruits",
+        "Personnes",
+        "Plantes",
+        "Sports",
+        "Technologie"
+    )
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +41,8 @@ class PageAccueil : AppCompatActivity() {
         setContentView(R.layout.activity_page_accueil)
 
         val fullName = findViewById<TextView>(R.id.FullName)
+        val btn_logout = findViewById<Button>(R.id.btn_logout)
+
 
         // Accédez aux informations de l'utilisateur depuis l'objet Singleton
         val userInfo = RequeteApi.UserSingleton.userInfo
@@ -48,22 +61,36 @@ class PageAccueil : AppCompatActivity() {
         recyclerView.adapter = MyAdapter(items.toList())
 
 
-
-
-
         //btn retour
         onBackPressedDispatcher.addCallback(this /* lifecycle owner */) {
             showExitConfirmationDialog()
         }
+        btn_logout.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(p0: View?) {
+                showExitConfirmationDialog()
+            }
+        })
 
     }
 
     // Class liste custom
-    class MyAdapter(private val items: List<String>) : RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
+    class MyAdapter(private val items: List<String>) :
+        RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
+
+        private var listener: OnItemClickListener? = null
+
+        interface OnItemClickListener {
+            fun onItemClick(item: String)
+        }
+
+        fun setOnItemClickListener(listener: OnItemClickListener) {
+            this.listener = listener
+        }
 
         inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val textViewItem: TextView = itemView.findViewById(R.id.titre)
             val textViewLineNumber: TextView = itemView.findViewById(R.id.id)
+
 
         }
 
@@ -79,9 +106,9 @@ class PageAccueil : AppCompatActivity() {
             holder.textViewLineNumber.text = (position + 1).toString()
             holder.textViewItem.setTextColor(Color.WHITE);
             holder.textViewLineNumber.setTextColor(Color.WHITE)
-
-
-
+            holder.itemView.setOnClickListener {
+                println(holder.textViewItem.text)
+            }
 
         }
 
@@ -90,9 +117,7 @@ class PageAccueil : AppCompatActivity() {
         }
 
 
-
     }
-
 
 
     private fun showExitConfirmationDialog() {
