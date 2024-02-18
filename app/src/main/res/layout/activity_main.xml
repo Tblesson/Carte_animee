@@ -8,7 +8,19 @@
     android:background="@drawable/fond_bleu">
 
 
+    <TextView
+        android:layout_above="@id/Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Connexion"
+        android:textStyle="bold"
+        android:textSize="40dp"
+        android:layout_alignLeft="@id/Card"
+        android:textColor="@color/white"/>
+
+
     <RelativeLayout
+        android:id="@+id/Card"
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:layout_centerInParent="true"

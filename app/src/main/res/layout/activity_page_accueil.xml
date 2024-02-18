@@ -6,12 +6,38 @@
     android:layout_height="match_parent"
     tools:context=".PageAccueil">
 
-
-    <TextView
-        android:id="@+id/FullName"
+    <RelativeLayout
+        android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </TextView>
+        android:layout_height="70dp"
+        android:layout_alignParentTop="true"
+        android:background="#212529">
+
+
+        <TextView
+            android:id="@+id/FullName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/user"
+            android:drawablePadding="8dp"
+            android:layout_marginLeft="10dp"
+            android:layout_centerInParent="true"
+            android:gravity="center_vertical|start"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+
+    </RelativeLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_below="@id/header"
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        android:padding="5dp" />
+
+
 
 
 </RelativeLayout>
