@@ -2,63 +2,78 @@ package com.esaip.carte_animee
 
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
-import android.window.OnBackInvokedDispatcher
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import androidx.core.os.BuildCompat
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class PageAccueil : AppCompatActivity() {
 
-    val items = arrayOf(
-        "Animaux",
-        "Véhicules",
-        "Bâtiments",
-        "Nourriture",
-        "Paysages",
-        "Fruits",
-        "Personnes",
-        "Plantes",
-        "Sports",
-        "Technologie"
+
+    val items: List<Array<Any?>> = listOf(
+        arrayOf(1, "Description animaux", "Animaux"),
+        arrayOf(2, "Description véhicules", "Véhicules"),
+        arrayOf(3, "Description bâtiments", "Bâtiments"),
+        arrayOf(4, "Description nourriture", "Nourriture")
     )
+
+
+
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_page_accueil)
 
+        val swipeRefreshLayout = findViewById<SwipeRefreshLayout>(R.id.swipeRefreshLayout)
         val fullName = findViewById<TextView>(R.id.FullName)
-        val btn_logout = findViewById<Button>(R.id.btn_logout)
-
-
+        val btn_logout = findViewById<ImageView>(R.id.btn_logout)
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        val requeteApi = RequeteApi()
+        var id = 0
         // Accédez aux informations de l'utilisateur depuis l'objet Singleton
         val userInfo = RequeteApi.UserSingleton.userInfo
         val roleInfo = RequeteApi.UserSingleton.roleInfo
+        recyclerView.layoutManager = LinearLayoutManager(this)
 
         if (userInfo != null && roleInfo != null) {
-            // Les informations de l'utilisateur sont disponibles, vous pouvez les afficher
             val nom = userInfo.nom
             val prenom = userInfo.prenom
+            id = userInfo.idUser
 
-            // Affichez les informations dans votre interface utilisateur
             fullName.text = "$nom $prenom"
+
+            GlobalScope.launch(Dispatchers.Main) {
+                try {
+                    val tab = withContext(Dispatchers.IO) {
+                        requeteApi.listeSeriesByUser(id)
+                    }
+                    recyclerView.adapter = MyAdapter(tab.toList())
+                } catch (e: Exception) {
+                    // Gérer les erreurs ici
+                    e.printStackTrace()
+                }
+            }
+
+
+
         }
-        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = MyAdapter(items.toList())
+
+
 
 
         //btn retour
@@ -71,10 +86,34 @@ class PageAccueil : AppCompatActivity() {
             }
         })
 
+        // Gestion refresh
+        swipeRefreshLayout.setOnRefreshListener {
+            GlobalScope.launch(Dispatchers.Main) {
+                try {
+                    val tab = withContext(Dispatchers.IO) {
+                        requeteApi.listeSeriesByUser(id)
+                    }
+                    recyclerView.adapter = MyAdapter(tab.toList())
+                } catch (e: Exception) {
+                    // Gérer les erreurs ici
+                    e.printStackTrace()
+                } finally {
+                    swipeRefreshLayout.isRefreshing = false
+                }
+            }
+        }
+
+
+
+
     }
 
+
+
+
+
     // Class liste custom
-    class MyAdapter(private val items: List<String>) :
+    class MyAdapter(private val items: List<Array<Any?>>) :
         RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
 
         private var listener: OnItemClickListener? = null
@@ -101,13 +140,15 @@ class PageAccueil : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-            val item = items[position]
-            holder.textViewItem.text = item
+            val item = items[position][2]
+            holder.textViewItem.text = item.toString()
             holder.textViewLineNumber.text = (position + 1).toString()
             holder.textViewItem.setTextColor(Color.WHITE);
             holder.textViewLineNumber.setTextColor(Color.WHITE)
             holder.itemView.setOnClickListener {
-                println(holder.textViewItem.text)
+                //println(holder.textViewItem.text+" id : "+items[position][0])
+
+
             }
 
         }
@@ -135,6 +176,10 @@ class PageAccueil : AppCompatActivity() {
         val alert = builder.create()
         alert.show()
     }
+
+
+
+
 
 }
 
