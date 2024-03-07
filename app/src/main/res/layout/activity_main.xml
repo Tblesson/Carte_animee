@@ -5,8 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    android:background="@drawable/fond_bleu">
+    >
 
+
+    <ImageView
+        android:id="@+id/background_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/fond_carte" />
 
     <TextView
         android:layout_above="@id/Card"
@@ -16,7 +23,7 @@
         android:textStyle="bold"
         android:textSize="40dp"
         android:layout_alignLeft="@id/Card"
-        android:textColor="@color/white"/>
+        android:textColor="@color/black"/>
 
 
     <RelativeLayout
@@ -26,14 +33,12 @@
         android:layout_centerInParent="true"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:background="@drawable/cardlogin">
-
-
+        >
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout1"
             android:layout_width="600dp"
             android:layout_height="80dp"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="15dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             app:boxStrokeColor="@color/black"
@@ -46,6 +51,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:hint="Adresse Mail"
+                android:textColor="@color/black"
                 android:inputType="textEmailAddress"/>
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -68,6 +74,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:hint="Mot de passe"
+                android:textColor="@color/black"
                 android:inputType="textPassword" />
 
 
@@ -84,7 +91,7 @@
             android:text="CONNEXION"
             android:background="@drawable/background_btn_connexion"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="200px"/>
 
 
 

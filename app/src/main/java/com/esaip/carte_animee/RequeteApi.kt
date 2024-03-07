@@ -5,6 +5,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.DataOutputStream
@@ -29,7 +30,8 @@ class RequeteApi {
 
     fun connexionUtilisateur(identifiant: String, password: String): Deferred<Boolean> =
         CoroutineScope(Dispatchers.IO).async {
-            val urlString = "http://25.45.22.19/carteAnimees/api.php?fonction=getUser&identifiant=${
+            try {
+            val urlString = "https://www.demineur-ligne.com/PFETTCV/carteAnimees/api.php?fonction=getUser&identifiant=${
                 URLEncoder.encode(
                     identifiant,
                     "UTF-8"
@@ -53,44 +55,58 @@ class RequeteApi {
                 bufferedReader.close()
                 inputStream.close()
 
+
                 // Analyse de la réponse JSON
-                val jsonResponse = JSONObject(response.toString())
-                val success = jsonResponse.getBoolean("success")
+                try {
+                    val jsonResponse = JSONObject(response.toString())
+                    val success = jsonResponse.getBoolean("success")
 
-                if (success) {
-                    // Extraire les valeurs des champs user et role
-                    val userObject = jsonResponse.getJSONObject("user")
-                    val roleObject = jsonResponse.getJSONObject("role")
-                    val userInfo = RequeteApi.UserInfo(
-                        idUser = userObject.getInt("Id"),
-                        nom = userObject.getString("Nom"),
-                        prenom = userObject.getString("Prenom"),
-                        idRole = userObject.getInt("IdRole")
-                    )
-                    val roleInfo = RoleInfo(
-                        nomRole = roleObject.getString("NomRole")
-                    )
+                    if (success) {
+                        // Extraire les valeurs des champs user et role
+                        val userObject = jsonResponse.getJSONObject("user")
+                        val roleObject = jsonResponse.getJSONObject("role")
+                        val userInfo = RequeteApi.UserInfo(
+                            idUser = userObject.getInt("Id"),
+                            nom = userObject.getString("Nom"),
+                            prenom = userObject.getString("Prenom"),
+                            idRole = userObject.getInt("IdRole")
+                        )
+                        val roleInfo = RoleInfo(
+                            nomRole = roleObject.getString("NomRole")
+                        )
 
-                    UserSingleton.userInfo = userInfo
-                    UserSingleton.roleInfo = roleInfo
+                        UserSingleton.userInfo = userInfo
+                        UserSingleton.roleInfo = roleInfo
 
-                    true // Succès de la connexion
-                } else {
-                    false // Échec de la connexion
+                        true // Succès de la connexion
+                    } else {
+                        false // Échec de la connexion
+                    }
+                } catch (e: JSONException) {
+                    // Gérer l'erreur de parsing JSON
+                    e.printStackTrace()
+                    System.out.println("Problème connexion server")
+                    false
                 }
+
             } else {
                 false // Échec de la connexion
+            }
+            } catch (e: IOException) {
+                // Gérer l'exception IOException, retourner false en cas d'échec de connexion
+                e.printStackTrace()
+                return@async false
             }
         }
 
 
     fun listeSeriesByUser(idUser: Int): Array<Array<Any?>> {
         try {
-            val urlString = "http://25.45.22.19/carteAnimees/api.php?fonction=getUserSeries&id=$idUser"
+            val urlString = "https://www.demineur-ligne.com/PFETTCV/carteAnimees/api.php?fonction=getUserSeries&id=$idUser"
             val url = URL(urlString)
 
             val conn = url.openConnection() as HttpURLConnection
-            conn.requestMethod = "GET"
+            conn.requestMethod = "POST"
 
             val responseCode = conn.responseCode
             if (responseCode == HttpURLConnection.HTTP_OK) {

@@ -1,12 +1,18 @@
 package com.esaip.carte_animee
 
+import android.R.layout
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.PorterDuff
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
@@ -14,6 +20,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.snackbar.Snackbar.SnackbarLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -23,28 +31,22 @@ import kotlinx.coroutines.withContext
 class PageAccueil : AppCompatActivity() {
 
 
-    val items: List<Array<Any?>> = listOf(
-        arrayOf(1, "Description animaux", "Animaux"),
-        arrayOf(2, "Description véhicules", "Véhicules"),
-        arrayOf(3, "Description bâtiments", "Bâtiments"),
-        arrayOf(4, "Description nourriture", "Nourriture")
-    )
+    val requeteApi = RequeteApi()
+    var id = 0
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
-
-
-
-
-
+    @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_page_accueil)
 
-        val swipeRefreshLayout = findViewById<SwipeRefreshLayout>(R.id.swipeRefreshLayout)
+        swipeRefreshLayout = findViewById<SwipeRefreshLayout>(R.id.swipeRefreshLayout)
         val fullName = findViewById<TextView>(R.id.FullName)
         val btn_logout = findViewById<ImageView>(R.id.btn_logout)
-        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-        val requeteApi = RequeteApi()
-        var id = 0
+        recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+
+
         // Accédez aux informations de l'utilisateur depuis l'objet Singleton
         val userInfo = RequeteApi.UserSingleton.userInfo
         val roleInfo = RequeteApi.UserSingleton.roleInfo
@@ -57,19 +59,7 @@ class PageAccueil : AppCompatActivity() {
 
             fullName.text = "$nom $prenom"
 
-            GlobalScope.launch(Dispatchers.Main) {
-                try {
-                    val tab = withContext(Dispatchers.IO) {
-                        requeteApi.listeSeriesByUser(id)
-                    }
-                    recyclerView.adapter = MyAdapter(tab.toList())
-                } catch (e: Exception) {
-                    // Gérer les erreurs ici
-                    e.printStackTrace()
-                }
-            }
-
-
+            onRefresh()
 
         }
 
@@ -86,26 +76,14 @@ class PageAccueil : AppCompatActivity() {
             }
         })
 
+
+
+
+
         // Gestion refresh
         swipeRefreshLayout.setOnRefreshListener {
-            GlobalScope.launch(Dispatchers.Main) {
-                try {
-                    val tab = withContext(Dispatchers.IO) {
-                        requeteApi.listeSeriesByUser(id)
-                    }
-                    recyclerView.adapter = MyAdapter(tab.toList())
-                } catch (e: Exception) {
-                    // Gérer les erreurs ici
-                    e.printStackTrace()
-                } finally {
-                    swipeRefreshLayout.isRefreshing = false
-                }
-            }
+            onRefresh()
         }
-
-
-
-
     }
 
 
@@ -177,10 +155,31 @@ class PageAccueil : AppCompatActivity() {
         alert.show()
     }
 
+    private fun onRefresh(){
 
+        GlobalScope.launch(Dispatchers.Main) {
+            try {
+                val tab = withContext(Dispatchers.IO) {
+                    requeteApi.listeSeriesByUser(id)
+                }
 
+                if (tab.isEmpty()) {
+                    val bar = Snackbar.make(swipeRefreshLayout, "Erreur lors de la récupération", Snackbar.LENGTH_INDEFINITE)
+                        .setAction("Réessayer") {
+                            onRefresh()
+                        }
+                    bar.show()
+                }
+                recyclerView.adapter = MyAdapter(tab.toList())
+            } catch (e: Exception) {
+                // Gérer les erreurs ici
+                e.printStackTrace()
+            } finally {
+                swipeRefreshLayout.isRefreshing = false
+            }
 
-
+        }
+    }
 }
 
 

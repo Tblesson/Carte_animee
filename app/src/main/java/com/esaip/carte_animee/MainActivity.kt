@@ -11,10 +11,12 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -48,14 +50,41 @@ class MainActivity : AppCompatActivity() {
                                 val reponse = reponseDeferred.await()
                                 if (reponse != null) {
                                     if (reponse) {
-                                        val intent = Intent(baseContext, PageAccueil::class.java)
-                                        startActivity(intent)
-                                        finish() // Optionnel : pour fermer l'activité actuelle si nécessaire
-                                    }
-                                    else {
+                                        val userInfo = com.esaip.carte_animee.RequeteApi.UserSingleton.userInfo
+                                        var idrole =-1
+                                        if (userInfo != null) {
+                                            idrole = userInfo.idRole
+                                        }
+                                        if(idrole==2){
+                                            val intent = Intent(baseContext, PageAccueil::class.java)
+                                            startActivity(intent)
+                                            finish() // Optionnel : pour fermer l'activité actuelle si nécessaire
+                                        }else{
+
+                                            val snackbar = Snackbar.make(
+                                                v,
+                                                "Ce compte n'a pas les droits",
+                                                Snackbar.LENGTH_LONG
+                                            )
+                                            val view = snackbar.view
+                                            snackbar.setBackgroundTint((Color.parseColor("#e30000")))
+                                            val params = view.layoutParams as FrameLayout.LayoutParams
+                                            params.gravity = Gravity.TOP
+                                            view.layoutParams = params
+                                            val textView =
+                                                view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+                                            textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
+                                            snackbar.show()
+
+
+                                        }
+
+
+
+                                    } else {
                                         val snackbar = Snackbar.make(
                                             v,
-                                            "Mot de passe Incorrect",
+                                            "Mot de passe incorrect",
                                             Snackbar.LENGTH_LONG
                                         )
                                         val view = snackbar.view
