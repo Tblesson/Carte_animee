@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.media.Image
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -17,6 +18,7 @@ import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -46,7 +48,6 @@ class PageAccueil : AppCompatActivity() {
         val btn_logout = findViewById<ImageView>(R.id.btn_logout)
         recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
 
-
         // Accédez aux informations de l'utilisateur depuis l'objet Singleton
         val userInfo = RequeteApi.UserSingleton.userInfo
         val roleInfo = RequeteApi.UserSingleton.roleInfo
@@ -58,7 +59,6 @@ class PageAccueil : AppCompatActivity() {
             id = userInfo.idUser
 
             fullName.text = "$nom $prenom"
-
             onRefresh()
 
         }
@@ -107,13 +107,12 @@ class PageAccueil : AppCompatActivity() {
         inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val textViewItem: TextView = itemView.findViewById(R.id.titre)
             val textViewLineNumber: TextView = itemView.findViewById(R.id.id)
-
-
+            val icone_lock: ImageView = itemView.findViewById(R.id.icon_lock)
+            val cardView: CardView = itemView.findViewById(R.id.cardViewId)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
             val view = LayoutInflater.from(parent.context).inflate(R.layout.item, parent, false)
-            view.setBackgroundResource(R.drawable.background_btn_connexion)
             return MyViewHolder(view)
         }
 
@@ -121,12 +120,23 @@ class PageAccueil : AppCompatActivity() {
             val item = items[position][2]
             holder.textViewItem.text = item.toString()
             holder.textViewLineNumber.text = (position + 1).toString()
-            holder.textViewItem.setTextColor(Color.WHITE);
-            holder.textViewLineNumber.setTextColor(Color.WHITE)
+            if(items[position][1]==1){
+                holder.icone_lock.visibility = View.VISIBLE
+                holder.icone_lock.setBackgroundResource(R.drawable.icone_series_lock)
+                holder.itemView.isClickable = false
+            }else if(items[position][1] == 3) {
+                holder.icone_lock.visibility = View.INVISIBLE
+                holder.cardView.setCardBackgroundColor(Color.parseColor("#d0ffaf"))
+
+                holder.itemView.isClickable = true
+            }else if(items[position][1] == 2){
+                holder.icone_lock.visibility = View.INVISIBLE
+                holder.itemView.isClickable = true
+            }
+            //System.out.println("la series "+items[position][0])
             holder.itemView.setOnClickListener {
                 //println(holder.textViewItem.text+" id : "+items[position][0])
-
-
+                println( holder.textViewItem.text)
             }
 
         }

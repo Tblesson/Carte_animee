@@ -130,6 +130,14 @@ class RequeteApi {
                 // Création du tableau pour stocker les résultats
                 val resultArray = Array(seriesArray.length()) { arrayOfNulls<Any?>(3) }
 
+                /** statut
+                 * 1 -> bloquer
+                 * 2 -> en cours
+                 * 3 -> finie
+                 * */
+
+
+
                 // Remplissage du tableau avec les données JSON
                 for (i in 0 until seriesArray.length()) {
                     val serie = seriesArray.getJSONObject(i)
