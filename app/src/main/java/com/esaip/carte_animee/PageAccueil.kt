@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
@@ -49,6 +50,10 @@ class PageAccueil : AppCompatActivity() {
         val fullName = findViewById<TextView>(R.id.FullName)
         val btn_logout = findViewById<ImageView>(R.id.btn_logout)
         recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+
+
+
+
 
         // Accédez aux informations de l'utilisateur depuis l'objet Singleton
         val userInfo = RequeteApi.UserSingleton.userInfo

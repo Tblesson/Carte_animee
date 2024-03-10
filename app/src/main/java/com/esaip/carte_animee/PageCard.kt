@@ -1,17 +1,24 @@
 package com.esaip.carte_animee
 
+import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.StrictMode
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.webkit.WebView
+import android.widget.Button
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.AppCompatButton
+import androidx.cardview.widget.CardView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -24,8 +31,13 @@ class PageCard : AppCompatActivity() {
     var id = 0
     private lateinit var nbCard: TextView
     private var cartes: Array<Array<Any?>> = emptyArray()
-    private var numCard: Int? = 1
+    private var numCard: Int = 1
+    private lateinit var webView: WebView
+    private lateinit var description: TextView
+    private var mediaPlayer: MediaPlayer? = null
 
+
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -37,6 +49,12 @@ class PageCard : AppCompatActivity() {
         val btn_logout = findViewById<ImageView>(R.id.btn_logout)
         val userInfo = RequeteApi.UserSingleton.userInfo
         val roleInfo = RequeteApi.UserSingleton.roleInfo
+        val btn_suivant = findViewById<Button>(R.id.btn_suivant)
+        val btn_precedent = findViewById<Button>(R.id.btn_precedent)
+        webView = findViewById<WebView>(R.id.webView)
+        description = findViewById<TextView>(R.id.descriptionCard)
+
+
 
         nbCard = findViewById(R.id.nbCards)
 
@@ -56,13 +74,57 @@ class PageCard : AppCompatActivity() {
 
 
 
+
         btn_logout.setOnClickListener(object : View.OnClickListener {
             override fun onClick(p0: View?) {
                 showExitConfirmationDialog()
             }
         })
 
+        btn_suivant.setOnClickListener(object :View.OnClickListener {
+            override fun onClick(p0: View?) {
+                if(numCard<cartes.size){
+                    numCard = numCard+1
+                    nbCard.text = "${numCard}/${cartes.size}"
+                    mediaPlayer?.stop()
+                    setImage(numCard)
+                }
+            }
+
+        })
+
+        btn_precedent.setOnClickListener(object :View.OnClickListener {
+            override fun onClick(p0: View?) {
+                if(numCard>1){
+                    numCard = numCard-1
+                    nbCard.text = "${numCard}/${cartes.size}"
+                    mediaPlayer?.stop()
+                    setImage(numCard)
+                }
+
+            }
+
+        })
+
+        webView.setOnTouchListener { view, event ->
+            when (event.action) {
+                MotionEvent.ACTION_UP -> {
+                    setSon(numCard)
+                    true
+                }
+                else -> false
+            }
+        }
+
+
+
+
+
+
+
+
         onBackPressedDispatcher.addCallback(this /* lifecycle owner */) {
+            mediaPlayer?.stop()
             finish()
         }
 
@@ -93,9 +155,9 @@ class PageCard : AppCompatActivity() {
                 if (cartes.isEmpty()) {
                     showCardsEmptyDialog()
                 } else {
-                    nbCard.text = "1/${cartes.size}"
+                    nbCard.text = "${numCard}/${cartes.size}"
                     //affichage Premiere carte
-                    setImage(0)
+                    setImage(numCard)
                 }
             }
         } catch (e: Exception) {
@@ -103,6 +165,7 @@ class PageCard : AppCompatActivity() {
             e.printStackTrace()
         }
     }
+
 
 
 
@@ -125,14 +188,22 @@ class PageCard : AppCompatActivity() {
 
     private fun setImage(numCard: Int){
 
-       //System.out.println(cartes[numCard][2])
-
-        val webView = findViewById<WebView>(R.id.webView)
+        description.setText(cartes[numCard-1][1].toString())
         webView.settings.javaScriptEnabled = true
-        webView.loadUrl("https://www.demineur-ligne.com/PFETTCV/carteAnimees/image/"+cartes[numCard][2].toString()+".gif")
+        webView.loadUrl("https://www.demineur-ligne.com/PFETTCV/carteAnimees/image/"+cartes[numCard-1][2].toString()+".gif")
 
+    }
+    private fun setSon(numCard: Int) {
+        // Couper le son en cours
+        mediaPlayer?.stop()
 
-
+        mediaPlayer = MediaPlayer().apply {
+            setDataSource("https://www.demineur-ligne.com/PFETTCV/carteAnimees/son/${cartes[numCard - 1][3]}.mp3")
+            prepareAsync()
+            setOnPreparedListener {
+                it.start()
+            }
+        }
     }
 
 
