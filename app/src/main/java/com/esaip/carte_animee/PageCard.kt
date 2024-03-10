@@ -4,12 +4,15 @@ import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.StrictMode
 import android.view.KeyEvent
 import android.view.View
+import android.webkit.WebView
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -19,17 +22,24 @@ class PageCard : AppCompatActivity() {
 
     val requeteApi = RequeteApi()
     var id = 0
+    private lateinit var nbCard: TextView
+    private var cartes: Array<Array<Any?>> = emptyArray()
+    private var numCard: Int? = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_page_card)
+        StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build())
 
 
         val fullName = findViewById<TextView>(R.id.FullName)
         val btn_logout = findViewById<ImageView>(R.id.btn_logout)
         val userInfo = RequeteApi.UserSingleton.userInfo
         val roleInfo = RequeteApi.UserSingleton.roleInfo
+
+        nbCard = findViewById(R.id.nbCards)
+
 
         if (userInfo != null && roleInfo != null) {
             val nom = userInfo.nom
@@ -76,25 +86,27 @@ class PageCard : AppCompatActivity() {
     }
 
     private fun getCards(idSerie: String) {
-        GlobalScope.launch(Dispatchers.Main) {
-            try {
-                val cartes = withContext(Dispatchers.IO) {
-                    requeteApi.listeCardsByIdSeries(idSerie)
-                }
-                println("Cartes récupérées:")
+        try {
+            cartes = requeteApi.listeCardsByIdSeries(idSerie)
+            runOnUiThread {
+                // Mettez ici le code pour traiter les cartes récupérées
                 if (cartes.isEmpty()) {
                     showCardsEmptyDialog()
                 } else {
-                    cartes.forEach { carte ->
-                        println("ID: ${carte[0]}, Intitulé: ${carte[1]}, ID Image: ${carte[2]}, ID Son: ${carte[3]}, ID Série: ${carte[4]}, Description: ${carte[5]}")
-                    }
+                    nbCard.text = "1/${cartes.size}"
+                    //affichage Premiere carte
+                    setImage(0)
                 }
-            } catch (e: Exception) {
-                // Gérer les exceptions ici
-                e.printStackTrace()
             }
+        } catch (e: Exception) {
+            // Gérer les exceptions ici
+            e.printStackTrace()
         }
     }
+
+
+
+
 
     private fun showCardsEmptyDialog() {
         val builder = AlertDialog.Builder(this)
@@ -108,6 +120,19 @@ class PageCard : AppCompatActivity() {
 
         val alert = builder.create()
         alert.show()
+    }
+
+
+    private fun setImage(numCard: Int){
+
+       //System.out.println(cartes[numCard][2])
+
+        val webView = findViewById<WebView>(R.id.webView)
+        webView.settings.javaScriptEnabled = true
+        webView.loadUrl("https://www.demineur-ligne.com/PFETTCV/carteAnimees/image/"+cartes[numCard][2].toString()+".gif")
+
+
+
     }
 
 

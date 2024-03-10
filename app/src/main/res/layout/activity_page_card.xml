@@ -37,5 +37,83 @@
 
     </RelativeLayout>
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/header">
+
+        <TextView
+            android:id="@+id/nbCards"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:textSize="20dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:textColor="@color/black"
+            />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cards"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_centerInParent="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="80dp"
+            app:cardCornerRadius="16dp">
+
+            <WebView
+                android:id="@+id/webView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:ignore="WebViewLayout" />
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/descriptionCard"
+            android:layout_below="@id/cards"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="CHIEN"
+            android:layout_marginTop="10dp"
+            android:textSize="20dp"/>
+
+
+
+        <LinearLayout
+            android:layout_below="@id/descriptionCard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_1"
+                android:layout_width="150dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="8dp"
+                android:text="Précedent"
+                android:textColor="@color/white"
+                android:background="@drawable/background_btn_connexion" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:layout_width="150dp"
+                android:layout_height="50dp"
+                android:text="Suivant"
+                android:textColor="@color/white"
+                android:background="@drawable/background_btn_connexion" />
+        </LinearLayout>
+
+
+
+
+    </RelativeLayout>
+
+
+
+
+
 
 </RelativeLayout>
