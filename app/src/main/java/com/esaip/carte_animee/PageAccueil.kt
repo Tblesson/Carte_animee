@@ -2,6 +2,7 @@ package com.esaip.carte_animee
 
 import android.R.layout
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -19,6 +20,7 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -91,7 +93,7 @@ class PageAccueil : AppCompatActivity() {
 
 
     // Class liste custom
-    class MyAdapter(private val items: List<Array<Any?>>) :
+    class MyAdapter(private val items: List<Array<Any?>>,private val context: Context) :
         RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
 
         private var listener: OnItemClickListener? = null
@@ -123,21 +125,23 @@ class PageAccueil : AppCompatActivity() {
             if(items[position][1]==1){
                 holder.icone_lock.visibility = View.VISIBLE
                 holder.icone_lock.setBackgroundResource(R.drawable.icone_series_lock)
-                holder.itemView.isClickable = false
+                holder.itemView.isEnabled = false
             }else if(items[position][1] == 3) {
                 holder.icone_lock.visibility = View.INVISIBLE
                 holder.cardView.setCardBackgroundColor(Color.parseColor("#d0ffaf"))
-
-                holder.itemView.isClickable = true
+                holder.itemView.isEnabled = true
             }else if(items[position][1] == 2){
                 holder.icone_lock.visibility = View.INVISIBLE
                 holder.itemView.isClickable = true
             }
             //System.out.println("la series "+items[position][0])
-            holder.itemView.setOnClickListener {
-                //println(holder.textViewItem.text+" id : "+items[position][0])
-                println( holder.textViewItem.text)
+            holder.cardView.setOnClickListener {
+                val intent = Intent(context, PageCard::class.java)
+                intent.putExtra("id_serie",holder.textViewLineNumber.text)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                context.startActivity(intent)
             }
+
 
         }
 
@@ -180,7 +184,7 @@ class PageAccueil : AppCompatActivity() {
                         }
                     bar.show()
                 }
-                recyclerView.adapter = MyAdapter(tab.toList())
+                recyclerView.adapter = MyAdapter(tab.toList(),baseContext)
             } catch (e: Exception) {
                 // Gérer les erreurs ici
                 e.printStackTrace()

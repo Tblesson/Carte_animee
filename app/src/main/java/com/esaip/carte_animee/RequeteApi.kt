@@ -159,7 +159,73 @@ class RequeteApi {
             return arrayOf<Array<Any?>>()
         }
     }
+
+
+    fun listeCardsByIdSeries(idSerie: String): Array<Array<Any?>> {
+        val urlString = "https://www.demineur-ligne.com/PFETTCV/carteAnimees/api.php?fonction=getCartes&idSerie=$idSerie"
+
+        return try {
+            val url = URL(urlString)
+            val conn = url.openConnection() as HttpURLConnection
+            conn.requestMethod = "POST"
+
+            // Vérifier le code de réponse HTTP
+            if (conn.responseCode == HttpURLConnection.HTTP_OK) {
+                val inputStream = conn.inputStream
+                val bufferedReader = BufferedReader(InputStreamReader(inputStream))
+                val response = StringBuilder()
+                var line: String?
+
+                // Lire la réponse ligne par ligne
+                while (bufferedReader.readLine().also { line = it } != null) {
+                    response.append(line)
+                }
+
+                // Fermer les flux
+                bufferedReader.close()
+                inputStream.close()
+
+                // Analyser la réponse JSON
+                val jsonResponse = JSONObject(response.toString())
+                val success = jsonResponse.getBoolean("success")
+
+                if (success) {
+                    // Extraire le tableau JSON "cartes"
+                    val cartesArray = jsonResponse.getJSONArray("cartes")
+
+                    // Créer un tableau pour stocker les résultats
+                    val resultArray = Array(cartesArray.length()) { arrayOfNulls<Any>(6) }
+
+                    // Remplir le tableau avec les données JSON
+                    for (i in 0 until cartesArray.length()) {
+                        val carte = cartesArray.getJSONObject(i)
+                        resultArray[i][0] = carte.getString("Id")
+                        resultArray[i][1] = carte.getString("Intitule")
+                        resultArray[i][2] = carte.getString("IdImage")
+                        resultArray[i][3] = carte.getString("IdSon")
+                        resultArray[i][4] = carte.getString("IdSerie")
+                        resultArray[i][5] = carte.getString("description")
+                    }
+
+                    resultArray
+                } else {
+                    // En cas d'échec, retourner un tableau vide
+                    arrayOf<Array<Any?>>()
+                }
+            } else {
+                // En cas d'erreur HTTP, retourner un tableau vide
+                arrayOf<Array<Any?>>()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace() // Gérer les exceptions en imprimant la trace
+            arrayOf<Array<Any?>>() // Retourner un tableau vide en cas d'erreur
+        }
+    }
 }
+
+
+
+
 
 
 

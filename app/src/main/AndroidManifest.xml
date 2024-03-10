@@ -20,6 +20,15 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".PageCard"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity2"
+            android:exported="false" />
+        <activity
+            android:name=".PageCards"
+            android:exported="false" />
+        <activity
             android:name=".PageAccueil"
             android:exported="false" />
         <activity
