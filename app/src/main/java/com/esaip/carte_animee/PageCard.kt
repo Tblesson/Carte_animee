@@ -35,7 +35,9 @@ class PageCard : AppCompatActivity() {
     private lateinit var webView: WebView
     private lateinit var description: TextView
     private var mediaPlayer: MediaPlayer? = null
-
+    private lateinit var btn_precedent: Button
+    private lateinit var btn_suivant: Button
+    private lateinit var btn_terminer: Button
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,10 +51,11 @@ class PageCard : AppCompatActivity() {
         val btn_logout = findViewById<ImageView>(R.id.btn_logout)
         val userInfo = RequeteApi.UserSingleton.userInfo
         val roleInfo = RequeteApi.UserSingleton.roleInfo
-        val btn_suivant = findViewById<Button>(R.id.btn_suivant)
-        val btn_precedent = findViewById<Button>(R.id.btn_precedent)
+        btn_suivant = findViewById<Button>(R.id.btn_suivant)
+        btn_precedent = findViewById<Button>(R.id.btn_precedent)
         webView = findViewById<WebView>(R.id.webView)
         description = findViewById<TextView>(R.id.descriptionCard)
+        btn_terminer = findViewById<Button>(R.id.btn_terminer)
 
 
 
@@ -67,11 +70,9 @@ class PageCard : AppCompatActivity() {
             fullName.text = "$nom $prenom"
 
             val idSerie = intent.getStringExtra("id_serie").toString()
-            //System.out.println(idSerie)
             getCards(idSerie)
-
+            gestionBtn()
         }
-
 
 
 
@@ -88,6 +89,7 @@ class PageCard : AppCompatActivity() {
                     nbCard.text = "${numCard}/${cartes.size}"
                     mediaPlayer?.stop()
                     setImage(numCard)
+                    gestionBtn()
                 }
             }
 
@@ -100,8 +102,16 @@ class PageCard : AppCompatActivity() {
                     nbCard.text = "${numCard}/${cartes.size}"
                     mediaPlayer?.stop()
                     setImage(numCard)
+                    gestionBtn()
                 }
 
+            }
+
+        })
+        btn_terminer.setOnClickListener(object :View.OnClickListener {
+            override fun onClick(p0: View?) {
+                onBackPressedDispatcher
+                finish()
             }
 
         })
@@ -115,7 +125,6 @@ class PageCard : AppCompatActivity() {
                 else -> false
             }
         }
-
 
 
 
@@ -204,6 +213,23 @@ class PageCard : AppCompatActivity() {
                 it.start()
             }
         }
+    }
+
+    private fun gestionBtn(){
+
+        // Gestion btn précedent
+        if (numCard==1){
+            btn_precedent.visibility = View.GONE
+            btn_terminer.visibility = View.GONE
+        }else if(numCard==cartes.size){
+            btn_suivant.visibility = View.GONE
+            btn_terminer.visibility = View.VISIBLE
+        }else{
+            btn_precedent.visibility = View.VISIBLE
+            btn_suivant.visibility = View.VISIBLE
+            btn_terminer.visibility = View.GONE
+        }
+
     }
 
 

@@ -103,16 +103,27 @@
                 android:layout_height="50dp"
                 android:layout_marginEnd="8dp"
                 android:text="Précedent"
-                android:textColor="@color/white"
-                android:background="@drawable/background_btn_connexion" />
+                android:textColor="#0d6efd"
+                android:drawableLeft="@drawable/before_icone"
+                android:background="@drawable/fond_btn_cards" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_suivant"
                 android:layout_width="150dp"
                 android:layout_height="50dp"
                 android:text="Suivant"
-                android:textColor="@color/white"
-                android:background="@drawable/background_btn_connexion" />
+                android:textColor="#0d6efd"
+                android:drawableRight="@drawable/next_icone"
+                android:background="@drawable/fond_btn_cards"/>
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_terminer"
+                android:layout_width="150dp"
+                android:layout_height="50dp"
+                android:text="Terminer"
+                android:textColor="#0d6efd"
+                android:visibility="gone"
+                android:background="@drawable/fond_btn_cards" />
+
         </LinearLayout>
 
     </RelativeLayout>
