@@ -1,29 +1,19 @@
 package com.esaip.carte_animee
 
 import android.annotation.SuppressLint
-import android.content.DialogInterface
 import android.content.Intent
 import android.media.MediaPlayer
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.StrictMode
-import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.webkit.WebView
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.AppCompatButton
-import androidx.cardview.widget.CardView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import androidx.appcompat.app.AppCompatActivity
 
 class PageCard : AppCompatActivity() {
 
@@ -32,13 +22,13 @@ class PageCard : AppCompatActivity() {
     private lateinit var nbCard: TextView
     private var cartes: Array<Array<Any?>> = emptyArray()
     private var numCard: Int = 1
+    private var statut: Int = -1
     private lateinit var webView: WebView
     private lateinit var description: TextView
     private var mediaPlayer: MediaPlayer? = null
     private lateinit var btn_precedent: Button
     private lateinit var btn_suivant: Button
     private lateinit var btn_terminer: Button
-
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -70,6 +60,13 @@ class PageCard : AppCompatActivity() {
             fullName.text = "$nom $prenom"
 
             val idSerie = intent.getStringExtra("id_serie").toString()
+            // Récupérer la valeur int extra avec une clé spécifiée et une valeur par défaut
+            // Récupérer la valeur Int directement
+            numCard = intent.getStringExtra("lastPosition").toString().toInt()
+            statut = intent.getStringExtra("statut").toString().toInt()
+
+            System.out.println("carte "+statut.toString())
+
             getCards(idSerie)
             gestionBtn()
         }
@@ -90,6 +87,8 @@ class PageCard : AppCompatActivity() {
                     mediaPlayer?.stop()
                     setImage(numCard)
                     gestionBtn()
+                    System.out.println("id de la carte "+cartes[numCard-1][4].toString()+" id lastcard "+cartes[numCard-1][0].toString())
+                    requeteApi.updateLastCard(cartes[numCard-1][4].toString(),cartes[numCard-1][0].toString())
                 }
             }
 
@@ -103,6 +102,8 @@ class PageCard : AppCompatActivity() {
                     mediaPlayer?.stop()
                     setImage(numCard)
                     gestionBtn()
+                    System.out.println("id de la carte "+cartes[numCard-1][4].toString()+" id lastcard "+cartes[numCard-1][0].toString())
+                    requeteApi.updateLastCard(cartes[numCard-1][4].toString(),cartes[numCard-1][0].toString())
                 }
 
             }
@@ -111,6 +112,9 @@ class PageCard : AppCompatActivity() {
         btn_terminer.setOnClickListener(object :View.OnClickListener {
             override fun onClick(p0: View?) {
                 onBackPressedDispatcher
+                if(statut!=3){
+                    requeteApi.closeSeriesUser(cartes[numCard-1][4].toString(),id)
+                }
                 finish()
             }
 
@@ -125,18 +129,6 @@ class PageCard : AppCompatActivity() {
                 else -> false
             }
         }
-
-
-
-
-
-
-
-        onBackPressedDispatcher.addCallback(this /* lifecycle owner */) {
-            mediaPlayer?.stop()
-            finish()
-        }
-
 
     }
 
@@ -161,9 +153,15 @@ class PageCard : AppCompatActivity() {
             cartes = requeteApi.listeCardsByIdSeries(idSerie)
             runOnUiThread {
                 // Mettez ici le code pour traiter les cartes récupérées
+               // System.out.println("id de la series:"+ cartes[numCard-1][0].toString()
                 if (cartes.isEmpty()) {
                     showCardsEmptyDialog()
                 } else {
+                    if(numCard==-1){
+                        // Premiere ouverture de la séries
+                        numCard = 1;
+                        requeteApi.updateLastCard(cartes[numCard-1][4].toString(),cartes[numCard-1][0].toString())
+                    }
                     nbCard.text = "${numCard}/${cartes.size}"
                     //affichage Premiere carte
                     setImage(numCard)
@@ -174,11 +172,6 @@ class PageCard : AppCompatActivity() {
             e.printStackTrace()
         }
     }
-
-
-
-
-
 
     private fun showCardsEmptyDialog() {
         val builder = AlertDialog.Builder(this)
@@ -200,7 +193,6 @@ class PageCard : AppCompatActivity() {
         description.setText(cartes[numCard-1][1].toString())
         webView.settings.javaScriptEnabled = true
         webView.loadUrl("https://www.demineur-ligne.com/PFETTCV/carteAnimees/image/"+cartes[numCard-1][2].toString()+".gif")
-
     }
     private fun setSon(numCard: Int) {
         // Couper le son en cours
@@ -218,11 +210,15 @@ class PageCard : AppCompatActivity() {
     private fun gestionBtn(){
 
         // Gestion btn précedent
-        if (numCard==1){
+        if(numCard==1 &&  numCard!=cartes.size){
             btn_precedent.visibility = View.GONE
             btn_terminer.visibility = View.GONE
-        }else if(numCard==cartes.size){
+        }else if (numCard==cartes.size && cartes.size!=1){
             btn_suivant.visibility = View.GONE
+            btn_terminer.visibility = View.VISIBLE
+        }else if(numCard==cartes.size && cartes.size==1){
+            btn_suivant.visibility = View.GONE
+            btn_precedent.visibility = View.GONE
             btn_terminer.visibility = View.VISIBLE
         }else{
             btn_precedent.visibility = View.VISIBLE
@@ -230,6 +226,13 @@ class PageCard : AppCompatActivity() {
             btn_terminer.visibility = View.GONE
         }
 
+
+
+    }
+    // Dans la méthode onBackPressed
+    override fun onBackPressed() {
+        mediaPlayer?.stop()
+        super.onBackPressed()
     }
 
 

@@ -2,6 +2,7 @@ package com.esaip.carte_animee
 
 import android.R.layout
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -31,6 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.w3c.dom.Text
 
 
 class PageAccueil : AppCompatActivity() {
@@ -52,9 +54,6 @@ class PageAccueil : AppCompatActivity() {
         recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
 
 
-
-
-
         // Accédez aux informations de l'utilisateur depuis l'objet Singleton
         val userInfo = RequeteApi.UserSingleton.userInfo
         val roleInfo = RequeteApi.UserSingleton.roleInfo
@@ -71,8 +70,6 @@ class PageAccueil : AppCompatActivity() {
         }
 
 
-
-
         //btn retour
         onBackPressedDispatcher.addCallback(this /* lifecycle owner */) {
             showExitConfirmationDialog()
@@ -84,9 +81,6 @@ class PageAccueil : AppCompatActivity() {
         })
 
 
-
-
-
         // Gestion refresh
         swipeRefreshLayout.setOnRefreshListener {
             onRefresh()
@@ -94,14 +88,12 @@ class PageAccueil : AppCompatActivity() {
     }
 
 
-
-
-
     // Class liste custom
-    class MyAdapter(private val items: List<Array<Any?>>,private val context: Context) :
+    class MyAdapter(private val items: List<Array<Any?>>, private val context: Context) :
         RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
 
         private var listener: OnItemClickListener? = null
+        val requeteApi = RequeteApi()
 
         interface OnItemClickListener {
             fun onItemClick(item: String)
@@ -116,6 +108,7 @@ class PageAccueil : AppCompatActivity() {
             val textViewLineNumber: TextView = itemView.findViewById(R.id.id)
             val icone_lock: ImageView = itemView.findViewById(R.id.icon_lock)
             val cardView: CardView = itemView.findViewById(R.id.cardViewId)
+            val pourcentage: TextView = itemView.findViewById(R.id.pourcentage);
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
@@ -124,40 +117,50 @@ class PageAccueil : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+
+
+            val nbCartes = items[position][4].toString().toInt()
+            val cardPosition = items[position][5].toString().toInt()
+
+
+            if ( nbCartes!= 0 && cardPosition != -1) {
+                val pourcentage = (cardPosition * 100) / nbCartes // Calculez le pourcentage
+                holder.pourcentage.text = "$pourcentage%" // Définissez le texte avec le pourcentage calculé
+            } else {
+                holder.pourcentage.text = "0%" // Ou tout autre texte que vous souhaitez afficher
+            }
+
             val item = items[position][2]
             holder.textViewItem.text = item.toString()
             holder.textViewLineNumber.text = (position + 1).toString()
-            if(items[position][1]==1){
+            if (items[position][1] == 1) {
                 holder.icone_lock.visibility = View.VISIBLE
                 holder.icone_lock.setBackgroundResource(R.drawable.icone_series_lock)
                 holder.itemView.isEnabled = false
-            }else if(items[position][1] == 3) {
+            } else if (items[position][1] == 3) {
                 holder.icone_lock.visibility = View.INVISIBLE
                 holder.cardView.setCardBackgroundColor(Color.parseColor("#d0ffaf"))
                 holder.itemView.isEnabled = true
-            }else if(items[position][1] == 2){
+            } else if (items[position][1] == 2) {
                 holder.icone_lock.visibility = View.INVISIBLE
                 holder.itemView.isClickable = true
             }
             //System.out.println("la series "+items[position][0])
             holder.cardView.setOnClickListener {
                 val intent = Intent(context, PageCard::class.java)
-                intent.putExtra("id_serie",holder.textViewLineNumber.text)
+                intent.putExtra("id_serie", holder.textViewLineNumber.text)
+                intent.putExtra("lastPosition", cardPosition.toString())
+                intent.putExtra("statut",items[position][1].toString())
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 context.startActivity(intent)
             }
 
 
         }
-
         override fun getItemCount(): Int {
             return items.size
         }
-
-
     }
-
-
     private fun showExitConfirmationDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setMessage("Voulez-vous vraiment vous déconnecter ?")
@@ -174,7 +177,7 @@ class PageAccueil : AppCompatActivity() {
         alert.show()
     }
 
-    private fun onRefresh(){
+    private fun onRefresh() {
 
         GlobalScope.launch(Dispatchers.Main) {
             try {
@@ -183,13 +186,17 @@ class PageAccueil : AppCompatActivity() {
                 }
 
                 if (tab.isEmpty()) {
-                    val bar = Snackbar.make(swipeRefreshLayout, "Erreur lors de la récupération", Snackbar.LENGTH_INDEFINITE)
+                    val bar = Snackbar.make(
+                        swipeRefreshLayout,
+                        "Erreur lors de la récupération",
+                        Snackbar.LENGTH_INDEFINITE
+                    )
                         .setAction("Réessayer") {
                             onRefresh()
                         }
                     bar.show()
                 }
-                recyclerView.adapter = MyAdapter(tab.toList(),baseContext)
+                recyclerView.adapter = MyAdapter(tab.toList(), baseContext)
             } catch (e: Exception) {
                 // Gérer les erreurs ici
                 e.printStackTrace()
@@ -199,6 +206,15 @@ class PageAccueil : AppCompatActivity() {
 
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        // Votre code à exécuter lorsque l'activité reprend
+        System.out.println("refresh")
+        onRefresh()
+    }
+
+
 }
 
 
