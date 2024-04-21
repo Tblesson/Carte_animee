@@ -7,7 +7,9 @@ import android.os.Bundle
 import android.os.StrictMode
 import android.view.MotionEvent
 import android.view.View
+import android.webkit.WebChromeClient
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -22,6 +24,7 @@ class PageCard : AppCompatActivity() {
     private lateinit var nbCard: TextView
     private var cartes: Array<Array<Any?>> = emptyArray()
     private var numCard: Int = 1
+    private var typeCard: Int = 2
     private var statut: Int = -1
     private lateinit var webView: WebView
     private lateinit var description: TextView
@@ -29,6 +32,8 @@ class PageCard : AppCompatActivity() {
     private lateinit var btn_precedent: Button
     private lateinit var btn_suivant: Button
     private lateinit var btn_terminer: Button
+    private lateinit var btn_swap: Button
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -46,6 +51,7 @@ class PageCard : AppCompatActivity() {
         webView = findViewById<WebView>(R.id.webView)
         description = findViewById<TextView>(R.id.descriptionCard)
         btn_terminer = findViewById<Button>(R.id.btn_terminer)
+        btn_swap = findViewById<Button>(R.id.btn_swap)
 
 
 
@@ -85,9 +91,11 @@ class PageCard : AppCompatActivity() {
                     numCard = numCard+1
                     nbCard.text = "${numCard}/${cartes.size}"
                     mediaPlayer?.stop()
-                    setImage(numCard)
+                    setImage(numCard,2)
                     gestionBtn()
                     System.out.println("id de la carte "+cartes[numCard-1][4].toString()+" id lastcard "+cartes[numCard-1][0].toString())
+                    btn_swap.setText("Image Réel")
+                    typeCard = 2
                     requeteApi.updateLastCard(cartes[numCard-1][4].toString(),cartes[numCard-1][0].toString())
                 }
             }
@@ -100,9 +108,11 @@ class PageCard : AppCompatActivity() {
                     numCard = numCard-1
                     nbCard.text = "${numCard}/${cartes.size}"
                     mediaPlayer?.stop()
-                    setImage(numCard)
+                    setImage(numCard,2)
                     gestionBtn()
                     System.out.println("id de la carte "+cartes[numCard-1][4].toString()+" id lastcard "+cartes[numCard-1][0].toString())
+                    btn_swap.setText("Image Réel")
+                    typeCard = 2
                     requeteApi.updateLastCard(cartes[numCard-1][4].toString(),cartes[numCard-1][0].toString())
                 }
 
@@ -119,6 +129,30 @@ class PageCard : AppCompatActivity() {
             }
 
         })
+
+
+        btn_swap.setOnClickListener(object :View.OnClickListener {
+            override fun onClick(p0: View?) {
+                onBackPressedDispatcher
+
+                if (typeCard==2){
+                    btn_swap.setText("Image Fictive")
+                    typeCard = 6
+                    setImage(numCard,6)
+
+                }else{
+                    typeCard = 2
+                    btn_swap.setText("Image Réel")
+                    setImage(numCard,2)
+                }
+
+
+            }
+
+        })
+
+
+
 
         webView.setOnTouchListener { view, event ->
             when (event.action) {
@@ -164,7 +198,7 @@ class PageCard : AppCompatActivity() {
                     }
                     nbCard.text = "${numCard}/${cartes.size}"
                     //affichage Premiere carte
-                    setImage(numCard)
+                    setImage(numCard,2)
                 }
             }
         } catch (e: Exception) {
@@ -188,18 +222,57 @@ class PageCard : AppCompatActivity() {
     }
 
 
-    private fun setImage(numCard: Int){
+    private fun setImage(numCard: Int, typeCard: Int) {
+        description.text = cartes[numCard - 1][1].toString()
 
-        description.setText(cartes[numCard-1][1].toString())
+        val webView: WebView = findViewById(R.id.webView)
         webView.settings.javaScriptEnabled = true
-        webView.loadUrl("https://www.demineur-ligne.com/PFETTCV/carteAnimees/image/"+cartes[numCard-1][2].toString()+".gif")
+        webView.webChromeClient = WebChromeClient()
+        webView.webViewClient = WebViewClient()
+        webView.isVerticalScrollBarEnabled = false
+        webView.isHorizontalScrollBarEnabled = false
+
+
+        val imageUrl = "https://seriespoil.fr/PFE/carteAnimees/image/${cartes[numCard - 1][typeCard]}.gif"
+
+        val htmlContent = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body, html {
+                    margin: 0;
+                    padding: 0;
+                    height: 100%;
+                    width: 100%;
+                }
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+            </style>
+        </head>
+        <body>
+            <img src="$imageUrl" alt="Image" />
+        </body>
+        </html>
+    """
+
+
+        webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
     }
+
+
+
+
+
     private fun setSon(numCard: Int) {
         // Couper le son en cours
         mediaPlayer?.stop()
 
         mediaPlayer = MediaPlayer().apply {
-            setDataSource("https://www.demineur-ligne.com/PFETTCV/carteAnimees/son/${cartes[numCard - 1][3]}.mp3")
+            setDataSource("https://seriespoil.fr/PFE/carteAnimees/son/${cartes[numCard - 1][3]}.mp3")
             prepareAsync()
             setOnPreparedListener {
                 it.start()

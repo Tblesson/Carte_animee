@@ -57,22 +57,25 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cards"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="250dp"
             android:layout_centerInParent="true"
             android:layout_alignParentTop="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
             android:layout_marginTop="80dp"
-            app:cardCornerRadius="16dp"
-            >
+            app:cardCornerRadius="16dp">
 
             <WebView
                 android:id="@+id/webView"
-                android:layout_width="300dp"
-                android:layout_height="300dp"
-                tools:ignore="WebViewLayout"
-                 />
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="none"
+                tools:ignore="WebViewLayout" />
 
 
         </androidx.cardview.widget.CardView>
+
+
 
 
 
@@ -87,10 +90,25 @@
             android:textSize="20dp"/>
 
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_swap"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:layout_below="@id/descriptionCard"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/fond_btn_cards"
+            android:drawableRight="@drawable/icone_swap"
+            android:text="Image Réel"
+            android:textColor="#0d6efd" />
+
+
+
+
 
 
         <LinearLayout
-            android:layout_below="@id/descriptionCard"
+            android:layout_below="@id/btn_swap"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
@@ -102,7 +120,7 @@
                 android:layout_width="150dp"
                 android:layout_height="50dp"
                 android:layout_marginEnd="8dp"
-                android:text="Précedent"
+                android:text="Précédent"
                 android:textColor="#0d6efd"
                 android:drawableLeft="@drawable/before_icone"
                 android:background="@drawable/fond_btn_cards" />

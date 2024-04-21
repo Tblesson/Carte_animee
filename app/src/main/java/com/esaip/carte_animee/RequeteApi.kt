@@ -197,7 +197,7 @@ class RequeteApi {
                     val cartesArray = jsonResponse.getJSONArray("cartes")
 
                     // Créer un tableau pour stocker les résultats
-                    val resultArray = Array(cartesArray.length()) { arrayOfNulls<Any>(6) }
+                    val resultArray = Array(cartesArray.length()) { arrayOfNulls<Any>(7) }
 
                     // Remplir le tableau avec les données JSON
                     for (i in 0 until cartesArray.length()) {
@@ -208,6 +208,8 @@ class RequeteApi {
                         resultArray[i][3] = carte.getString("IdSon")
                         resultArray[i][4] = carte.getString("IdSerie")
                         resultArray[i][5] = carte.getString("description")
+                        resultArray[i][6] = carte.getString("IdImageReel")
+
                     }
 
                     resultArray
