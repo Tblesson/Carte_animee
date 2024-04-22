@@ -33,6 +33,9 @@ class PageCard : AppCompatActivity() {
     private lateinit var btn_suivant: Button
     private lateinit var btn_terminer: Button
     private lateinit var btn_swap: Button
+    val DELAY_MILLISECONDS = 1000 // Délai en millisecondes
+
+    var lastClickTime: Long = 0
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -134,7 +137,7 @@ class PageCard : AppCompatActivity() {
         btn_swap.setOnClickListener(object :View.OnClickListener {
             override fun onClick(p0: View?) {
                 onBackPressedDispatcher
-
+                mediaPlayer?.stop()
                 if (typeCard==2){
                     btn_swap.setText("Image Fictive")
                     typeCard = 6
@@ -157,8 +160,16 @@ class PageCard : AppCompatActivity() {
         webView.setOnTouchListener { view, event ->
             when (event.action) {
                 MotionEvent.ACTION_UP -> {
-                    setSon(numCard)
-                    true
+                    val currentTime = System.currentTimeMillis()
+                    if (currentTime - lastClickTime >= DELAY_MILLISECONDS) {
+                        // Si le délai est écoulé, exécutez votre code
+                        setSon(numCard)
+                        lastClickTime = currentTime
+                        true
+                    } else {
+                        // Si le délai n'est pas écoulé, ignorez le clic
+                        false
+                    }
                 }
                 else -> false
             }
