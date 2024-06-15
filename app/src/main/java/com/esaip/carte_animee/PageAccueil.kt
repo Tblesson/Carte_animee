@@ -131,12 +131,19 @@ class PageAccueil : AppCompatActivity() {
             }
 
             val item = items[position][2]
+
             holder.textViewItem.text = item.toString()
             holder.textViewLineNumber.text = (position + 1).toString()
             if (items[position][1] == 1) {
                 holder.icone_lock.visibility = View.VISIBLE
                 holder.icone_lock.setBackgroundResource(R.drawable.icone_series_lock)
                 holder.itemView.isEnabled = false
+                if ( nbCartes!= 0 && cardPosition != -1) {
+                    val pourcentage = (cardPosition * 100) / nbCartes // Calculez le pourcentage
+                    if(pourcentage==100){
+                        holder.cardView.setCardBackgroundColor(Color.parseColor("#d0ffaf"))
+                    }
+                }
             } else if (items[position][1] == 3) {
                 holder.icone_lock.visibility = View.INVISIBLE
                 holder.cardView.setCardBackgroundColor(Color.parseColor("#d0ffaf"))
@@ -145,10 +152,12 @@ class PageAccueil : AppCompatActivity() {
                 holder.icone_lock.visibility = View.INVISIBLE
                 holder.itemView.isClickable = true
             }
+
+
             //System.out.println("la series "+items[position][0])
             holder.cardView.setOnClickListener {
                 val intent = Intent(context, PageCard::class.java)
-                intent.putExtra("id_serie", holder.textViewLineNumber.text)
+                intent.putExtra("id_serie", items[position][0].toString())
                 intent.putExtra("lastPosition", cardPosition.toString())
                 intent.putExtra("statut",items[position][1].toString())
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK

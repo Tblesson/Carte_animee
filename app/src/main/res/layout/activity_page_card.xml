@@ -99,7 +99,7 @@
             android:layout_marginTop="15dp"
             android:background="@drawable/fond_btn_cards"
             android:drawableRight="@drawable/icone_swap"
-            android:text="Image Réel"
+            android:text="Image Réele"
             android:textColor="#0d6efd" />
 
 

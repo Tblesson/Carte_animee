@@ -97,7 +97,7 @@ class PageCard : AppCompatActivity() {
                     setImage(numCard,2)
                     gestionBtn()
                     System.out.println("id de la carte "+cartes[numCard-1][4].toString()+" id lastcard "+cartes[numCard-1][0].toString())
-                    btn_swap.setText("Image Réel")
+                    btn_swap.setText("Image Réele")
                     typeCard = 2
                     requeteApi.updateLastCard(cartes[numCard-1][4].toString(),cartes[numCard-1][0].toString())
                 }
@@ -114,7 +114,7 @@ class PageCard : AppCompatActivity() {
                     setImage(numCard,2)
                     gestionBtn()
                     System.out.println("id de la carte "+cartes[numCard-1][4].toString()+" id lastcard "+cartes[numCard-1][0].toString())
-                    btn_swap.setText("Image Réel")
+                    btn_swap.setText("Image Réele")
                     typeCard = 2
                     requeteApi.updateLastCard(cartes[numCard-1][4].toString(),cartes[numCard-1][0].toString())
                 }
@@ -128,6 +128,7 @@ class PageCard : AppCompatActivity() {
                 if(statut!=3){
                     requeteApi.closeSeriesUser(cartes[numCard-1][4].toString(),id)
                 }
+                mediaPlayer?.stop()
                 finish()
             }
 
@@ -145,7 +146,7 @@ class PageCard : AppCompatActivity() {
 
                 }else{
                     typeCard = 2
-                    btn_swap.setText("Image Réel")
+                    btn_swap.setText("Image Réele")
                     setImage(numCard,2)
                 }
 
