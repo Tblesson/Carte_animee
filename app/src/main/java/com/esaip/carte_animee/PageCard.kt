@@ -295,11 +295,14 @@ class PageCard : AppCompatActivity() {
     private fun gestionBtn(){
 
         // Gestion btn précedent
-        if(numCard==1 &&  numCard!=cartes.size){
+        if(numCard==1 &&  numCard!=cartes.size && cartes.size!=1){
             btn_precedent.visibility = View.GONE
             btn_terminer.visibility = View.GONE
+            btn_suivant.visibility = View.VISIBLE
+
         }else if (numCard==cartes.size && cartes.size!=1){
             btn_suivant.visibility = View.GONE
+            btn_precedent.visibility = View.VISIBLE
             btn_terminer.visibility = View.VISIBLE
         }else if(numCard==cartes.size && cartes.size==1){
             btn_suivant.visibility = View.GONE
